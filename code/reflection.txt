@@ -1,7 +1,30 @@
-Write your reflection here.
+The main thing I learned in this assignment is grain, which means what one
+row stands for. The history table has one row per person per week, but
+summarize_employees uses a group by to make it one row per person. I used
+named aggreg so the columns already had the right names, and I had to
+use reset_index to get the group columns back as normal columns. The overtime
+count needed a lambda, which was new to me.
 
-See reflection.md for what makes a good reflection — be specific, use the
-terminology from this assignment (grain, long vs. wide, vectorized .str methods,
-coerce, NaT, pd.to_datetime format, .dt, concat, ignore_index, group by, named
-aggregation, reset_index, pivot_table, fill_value, melt, lineage), and make it
-actionable.
+Cleaning the data was harder than I expected because the old weeks were typed
+by hand. Instead of using apply, I used vectorized .str methods like strip,
+upper, and zfill. The tricky one was "E4", because it had to become "E004" or
+the roster merge wouldn't match it. For the dates, one pd.to_datetime format
+couldn't read both styles, so I parsed the column twice with
+errors="coerce" and filled in the NaT values from the second try. Then I used
+.dt to make the week and month labels. I also learned that concat needs
+ignore_index=True or the index repeats.
+
+The coolest part was long vs. wide. I used pivot_table with fill_value=0 to
+make a grid of hours, then used melt to turn it back into rows. That was the
+only way to find missed weeks, since nobody has a row for a week they didn't
+work. There were 31 missed weeks in the real data.
+
+The tests caught a few of my mistakes. One test said reshape.py broke the
+lineage rule because I changed a frame after making it, so I fixed it with
+rename_axis. Another test wanted the raw employeeid in the warning instead of
+the cleaned one. I also messed up the indentation once, and it made every app
+test fail with an error that didn't make sense at first.
+
+Next time I will read the test error messages more carefully before changing
+my code, run explore.py after each function to see the data, and check my
+indentation first if a whole file of tests suddenly fails.
